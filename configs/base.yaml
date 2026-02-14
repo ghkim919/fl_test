@@ -1,4 +1,5 @@
 strategy: fedavg
+model: cnn  # cnn, lenet5, mlp
 num_clients: 10
 num_rounds: 20
 fraction_fit: 0.5

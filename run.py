@@ -18,11 +18,14 @@ def main():
         "--partition", type=str, default=None, choices=["iid", "dirichlet"]
     )
     parser.add_argument("--alpha", type=float, default=None)
+    parser.add_argument("--model", type=str, default=None)
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
     config = load_config(args.config)
 
+    if args.model:
+        config["model"] = args.model
     if args.strategy:
         config["strategy"] = args.strategy
     if args.num_rounds:

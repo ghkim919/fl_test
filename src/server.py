@@ -3,7 +3,7 @@ from flwr.common import Context
 from flwr.server import ServerApp, ServerAppComponents, ServerConfig
 
 from src.dataset import load_test_data
-from src.model import CNN, set_parameters, test
+from src.model import create_model, set_parameters, test
 from src.strategy import create_strategy
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -13,7 +13,7 @@ def get_evaluate_fn(config, results_collector):
     test_loader = load_test_data(batch_size=config["batch_size"])
 
     def evaluate(server_round, parameters_ndarrays, config_dict):
-        model = CNN()
+        model = create_model(config.get("model", "cnn"))
         set_parameters(model, parameters_ndarrays)
         loss, accuracy = test(model, test_loader, DEVICE)
 
@@ -35,7 +35,7 @@ def get_cluster_evaluate_fn(config, cluster_results_collector):
     test_loader = load_test_data(batch_size=config["batch_size"])
 
     def evaluate(server_round, parameters_ndarrays):
-        model = CNN()
+        model = create_model(config.get("model", "cnn"))
         set_parameters(model, parameters_ndarrays)
         loss, accuracy = test(model, test_loader, DEVICE)
 

@@ -5,7 +5,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+# -- Model definitions --
+
 class CNN(nn.Module):
+    """Simple CNN for MNIST (Conv32 → Conv64 → FC128 → FC10)."""
+
     def __init__(self):
         super().__init__()
         self.conv1 = nn.Conv2d(1, 32, 3, 1)
@@ -23,6 +27,65 @@ class CNN(nn.Module):
         return x
 
 
+class LeNet5(nn.Module):
+    """LeNet-5 for MNIST (used in K-FL paper)."""
+
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 6, 5, padding=2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.avg_pool2d(x, 2)
+        x = F.relu(self.conv2(x))
+        x = F.avg_pool2d(x, 2)
+        x = torch.flatten(x, 1)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+
+class MLP(nn.Module):
+    """Simple MLP for MNIST."""
+
+    def __init__(self):
+        super().__init__()
+        self.fc1 = nn.Linear(28 * 28, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 10)
+
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+
+# -- Model factory --
+
+MODEL_REGISTRY = {
+    "cnn": CNN,
+    "lenet5": LeNet5,
+    "mlp": MLP,
+}
+
+
+def create_model(name="cnn"):
+    name = name.lower()
+    if name not in MODEL_REGISTRY:
+        available = ", ".join(MODEL_REGISTRY.keys())
+        raise ValueError(f"Unknown model: {name}. Available: {available}")
+    return MODEL_REGISTRY[name]()
+
+
+# -- Parameter helpers --
+
 def get_parameters(model):
     return [val.cpu().numpy() for _, val in model.state_dict().items()]
 
@@ -32,6 +95,8 @@ def set_parameters(model, parameters):
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
     model.load_state_dict(state_dict, strict=True)
 
+
+# -- Train / Test --
 
 def train(model, train_loader, epochs, lr, device, proximal_mu=0.0, global_params=None):
     model.to(device)

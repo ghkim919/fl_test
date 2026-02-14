@@ -3,7 +3,7 @@ import flwr as fl
 from flwr.client import ClientApp
 from flwr.common import Context
 
-from src.model import CNN, get_parameters, set_parameters, train, test
+from src.model import create_model, get_parameters, set_parameters, train, test
 from src.dataset import init_fds, load_partition
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -56,6 +56,7 @@ def create_client_app(config):
     partition_config = dict(config["partition"])
     seed = config["seed"]
     batch_size = config["batch_size"]
+    model_name = config.get("model", "cnn")
 
     def client_fn(context: Context):
         init_fds(num_clients, partition_config, seed)
@@ -65,7 +66,7 @@ def create_client_app(config):
             batch_size=batch_size,
             seed=seed,
         )
-        model = CNN()
+        model = create_model(model_name)
         return FlowerClient(model, train_loader, val_loader).to_client()
 
     return ClientApp(client_fn=client_fn)

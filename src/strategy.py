@@ -2,7 +2,7 @@ from flwr.common import Metrics, ndarrays_to_parameters
 from flwr.server.strategy import FedAdam, FedAvg, FedAvgM, FedProx
 
 from src.kfl_strategy import KFL
-from src.model import CNN, get_parameters
+from src.model import create_model, get_parameters
 
 
 def weighted_average(metrics: list[tuple[int, Metrics]]) -> Metrics:
@@ -12,7 +12,7 @@ def weighted_average(metrics: list[tuple[int, Metrics]]) -> Metrics:
 
 
 def create_strategy(config, evaluate_fn=None, cluster_evaluate_fn=None):
-    model = CNN()
+    model = create_model(config.get("model", "cnn"))
     initial_parameters = ndarrays_to_parameters(get_parameters(model))
 
     num_clients = config["num_clients"]
