@@ -1,0 +1,33 @@
+strategy: fedavg
+num_clients: 10
+num_rounds: 20
+fraction_fit: 0.5
+local_epochs: 3
+batch_size: 32
+learning_rate: 0.01
+seed: 42
+
+partition:
+  type: iid  # iid or dirichlet
+  alpha: 0.1  # Dirichlet concentration parameter (only used when type: dirichlet)
+
+# Strategy-specific hyperparameters
+fedprox:
+  proximal_mu: 0.1
+
+fedadam:
+  eta: 0.01
+  tau: 0.001
+  beta_1: 0.9
+  beta_2: 0.99
+
+fedavgm:
+  server_momentum: 0.9
+
+kfl:
+  requesting_device_id: 0        # device that requests clustering
+  clustering_threshold: 0.01     # Kalman filter convergence threshold
+  min_clustering_rounds: 3       # minimum rounds before clustering
+  max_clustering_rounds: 15      # force clustering after this many rounds
+  kalman_Q: 0.0179               # process noise covariance (from paper)
+  kalman_R: 0.0003               # measurement noise covariance (from paper)

@@ -1,0 +1,18 @@
+[project]
+name = "fl-test"
+version = "0.1.0"
+description = "Flower 기반 연합학습 기법 비교 실험 환경"
+requires-python = ">=3.10"
+dependencies = [
+    "flwr[simulation]>=1.13",
+    "flwr-datasets>=0.4",
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "pyyaml>=6.0",
+    "matplotlib>=3.7",
+    "numpy>=1.24",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
